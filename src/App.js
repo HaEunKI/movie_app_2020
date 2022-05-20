@@ -1,62 +1,53 @@
 import React from "react";
-import propTypes from 'prop-types';
+import axios from 'axios';
+import Movie from './Movie';
+import './App.css';
 
-function Food({ name, picture,rating }) {
-  return (
-    <div>
-      <h2>i like {name}</h2>
-      <h4>{rating}/5.9</h4>
-      <img src={picture} alt={name}/>
-    </div>
-  );
+class App extends React.Component{
+  state = {
+    isLoading: true,
+    movies: [],
+  };
+
+getMovies = async () => {
+  const {
+    data: {
+      data: {movies},
+    },
+  } = await axios.get('https://yts-proxy.now.sh/list_movies.json?sort_by=rating');
+  this.setState({movies, isLoading: false});
 }
 
-const foodILike = [
-  {
-    id: 1,
-    name:'Kimchi',
-    image:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.4aBRBEMc36CPZmEg84X40wEsDI%26pid%3DApi&f=1',
-    rating: 1,
-  },
-  {
-    id: 2,
-    name:'Samgyeopsal',
-    image:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.2QL4k0caBUvTsiuEGRfqzwHaE8%26pid%3DApi&f=1',
-    rating: 2,
-  },
-  {
-    id: 3,
-    name:'Bibimbap',
-    image:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.XQIww0eJrl8VSqLyJUCWeAHaE8%26pid%3DApi&f=1',
-    rating: 3,
-  },
-  {
-    id: 4,
-    name:'Doncasu',
-    image:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.DxkwyyLp8y5OyBlvX2xbXwHaEO%26pid%3DApi&f=1',
-    rating: 4,
-  },
-  {
-    id: 5,
-    name:'Kimbap',
-    imgae:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.M5YxC0U5LJPxJw__yi9oJgHaGL%26pid%3DApi&f=1',
-    rating: 5,
-  },
-];
+componentDidMount() { 
+  this.getMovies();
+}
 
-function App() {
-  return(
-    <div>
-      { foodILike.map(dish => (
-        <Food key={dish.id} name={dish.name} picture={dish.name} rating={dish.rating}/>
+  render(){
+    const {isLoading, movies} = this.state;
+    return (
+    <section className="container">
+    {isLoading ? (
+      <div className="loader">
+        <span className="loader__text">  'Loading...'  </span>
+       </div>
+   ) : (
+     <div className="movies">
+    {movies.map( (movie) => (
+      <Movie
+        key={movie.id}
+        id={movie.id}
+        year={movie.year}
+        title={movie.title}
+        summary={movie.summary}
+        poster={movie.medium_cover_image}
+        genres={movie.genres}
+      />
       ))}
-    </div>
-  )
+       </div>
+       )}
+       </section>
+    );
+  }
 }
 
-Food.propTypes = {
-  name:propTypes.string.isRequired,
-  picture:propTypes.string.isRequired,
-  rating:propTypes.number.isRequired,
-};
 export default App;
